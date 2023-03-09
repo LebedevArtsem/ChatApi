@@ -1,5 +1,3 @@
-# Chat
+This is api part of my chat.
 
-![alt](client/PhotosForReadme//SignIn.png)
-![alt](client/PhotosForReadme//SignUp.png)
-![alt](client/PhotosForReadme//Chat.png)
+You can find client in my github:)
