@@ -11,12 +11,4 @@ namespace Api.Hubs.Clients
 
         Task SendMessage(string message);
     }
-    public interface A
-    {
-        public void Send();
-    }
-    interface B:A
-    {
-        void Send();
-    }
 }

@@ -3,6 +3,7 @@ using System;
 using Api;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230317200503_UpdateDb")]
+    partial class UpdateDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,17 +68,17 @@ namespace Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("friend_email")
+                    b.Property<int?>("email")
                         .HasColumnType("integer");
 
-                    b.Property<int?>("user_email")
+                    b.Property<int?>("friend_email")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("friend_email");
+                    b.HasIndex("email");
 
-                    b.HasIndex("user_email");
+                    b.HasIndex("friend_email");
 
                     b.ToTable("friends");
                 });
@@ -120,13 +123,13 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.Friend", b =>
                 {
+                    b.HasOne("Api.Models.User", "UserEmail")
+                        .WithMany()
+                        .HasForeignKey("email");
+
                     b.HasOne("Api.Models.User", "FriendEmail")
                         .WithMany()
                         .HasForeignKey("friend_email");
-
-                    b.HasOne("Api.Models.User", "UserEmail")
-                        .WithMany()
-                        .HasForeignKey("user_email");
 
                     b.Navigation("FriendEmail");
 

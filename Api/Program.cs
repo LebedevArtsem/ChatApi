@@ -53,6 +53,7 @@ builder.Services.AddAuthentication(options =>
         options.SaveToken = true;
         options.TokenValidationParameters = new TokenValidationParameters
         {
+
             ValidateIssuer = false,
             //ValidIssuer = settings.Jwt.Issuer,
             ValidateAudience = false,

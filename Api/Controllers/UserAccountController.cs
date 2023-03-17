@@ -34,6 +34,7 @@ namespace Api.Controllers
             var user = await _context.Users
                 .Where(item => item.Email == signInUser.Email)
                 .FirstOrDefaultAsync();
+
             if (user == null) return Results.BadRequest("Please pass the valid Email");
 
             var passwordValid = Crypto.VerifyHashedPassword(user.Password, signInUser.Password);
@@ -69,7 +70,6 @@ namespace Api.Controllers
         public async Task<IResult> SignUp([FromBody] SignUpUser signUpUser)
         {
             if (!ModelState.IsValid) return Results.BadRequest("Error");
-            
 
             var user = _context.Users.Where(item => item.Email == signUpUser.Email).FirstOrDefault();
 
