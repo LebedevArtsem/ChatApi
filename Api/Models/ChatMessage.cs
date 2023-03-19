@@ -10,10 +10,10 @@ namespace Api.Models
         public int Id { get; set; }
 
         [Column("sended_person")]
-        public int SendedUser { get; set; }
+        public string SendedUser { get; set; }
 
         [Column("recieved_person")]
-        public int RecievedUser { get; set; }
+        public string RecievedUser { get; set; }
 
         [Column("message")]
         public string Message { get; set; }

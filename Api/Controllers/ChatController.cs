@@ -17,42 +17,53 @@ namespace Api.Controllers
     [Authorize]
     [ApiController]
     [Route("api/[controller]")]
-    public class ChatController:ControllerBase
+    public class ChatController : ControllerBase
     {
         private readonly IHubContext<ChatHub> _chatHub;
         private readonly DataContext database;
 
-        public ChatController(IHubContext<ChatHub> chatHub,DataContext database)
+        public ChatController(IHubContext<ChatHub> chatHub, DataContext database)
         {
             _chatHub = chatHub;
             this.database = database;
         }
 
         [HttpGet("friends")]
-        public async Task<List<User>> Friends()
+        public async Task<List<FriendModel>> Friends()
         {
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            //if (user == null) { return Results.NotFound; }
+            //if (user == null) { return Results.NotFound(); }
 
             var friends = await database.Friends
+                .Where(t => t.UserEmail == userEmail)
                 .Join(database.Users,
                 f => f.UserEmail,
-                u => u.Email, (f, u) => new Friend
+                u => u.Email, (f, u) => new
                 {
-                   Friends = f.Friends,
-                   UserEmail = u.Email
+                    UserEmail = userEmail,
+                    FriendEmail = f.Friends.Email,
+                    Name = f.Friends.Name
                 })
-                .Where(t => t.UserEmail == userEmail).Select(t=>t.Friends).ToListAsync();
+                .Select(t => new FriendModel { FriendEmail = t.FriendEmail, Name = t.Name })
+                .ToListAsync();
 
             return friends;
         }
 
-        //[HttpPost("sendmessage")]
-        //public async Task SendToUser(MessageModel messageModel)
-        //{
-        //    await _chatHub.Clients.All.SendAsync("", messageModel.Message);
-        //}
+        [HttpGet("message-history")]
+        public async Task<List<ChatMessage>> MessageHistory(string friendEmail)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
+            var messageList = await database.ChatMessages
+                .Where(t => 
+                (t.SendedUser == userEmail && t.RecievedUser == friendEmail) || 
+                (t.RecievedUser == userEmail && t.SendedUser == friendEmail))
+                .Take(50)
+                .ToListAsync();
+
+            return messageList;
+        }
     }
 }

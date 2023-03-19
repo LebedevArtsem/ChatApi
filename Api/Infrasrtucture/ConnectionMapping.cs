@@ -8,42 +8,39 @@ namespace Api.Infrasrtucture
 
         public HashSet<string> GetConnection(T key)
         {
-            lock(_connections)
-            {
-                var connection = _connections[key];
-                return connection;
-            }
+            _connections.TryGetValue(key,out var connection);
+            return connection;
         }
 
-        public void AddConnection(T key,string connectionId) 
+        public void AddConnection(T key, string connectionId)
         {
             lock (_connections)
             {
                 HashSet<string> connection;
-                if (!_connections.TryGetValue(key,out connection))
+                if (!_connections.TryGetValue(key, out connection))
                 {
                     connection = new HashSet<string>();
                     _connections.Add(key, connection);
                 }
 
-                lock(connection)
+                lock (connection)
                 {
                     connection.Add(connectionId);
                 }
             }
         }
 
-        public void RemoveConnection(T key,string connectionId) 
+        public void RemoveConnection(T key, string connectionId)
         {
             lock (_connections)
             {
                 HashSet<string> connection;
-                if (!_connections.TryGetValue(key,out connection))
+                if (!_connections.TryGetValue(key, out connection))
                 {
                     return;
                 }
 
-                lock(connection)
+                lock (connection)
                 {
                     connection.Remove(connectionId);
 

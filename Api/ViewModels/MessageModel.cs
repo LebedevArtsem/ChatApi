@@ -4,6 +4,8 @@
     {
         public string Message { get; set; }
 
-        public string Reciever { get; set; }
+        public string RecievedUser { get; set; }
+
+        public string SendedUser { get; set; }
     }
 }
