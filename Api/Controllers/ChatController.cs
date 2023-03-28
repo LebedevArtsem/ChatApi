@@ -57,13 +57,33 @@ namespace Api.Controllers
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
             var messageList = await database.ChatMessages
-                .Where(t => 
-                (t.SendedUser == userEmail && t.RecievedUser == friendEmail) || 
+                .Where(t =>
+                (t.SendedUser == userEmail && t.RecievedUser == friendEmail) ||
                 (t.RecievedUser == userEmail && t.SendedUser == friendEmail))
                 .Take(50)
                 .ToListAsync();
 
             return messageList;
+        }
+
+        [HttpGet("find-friends")]
+        public async Task<List<FriendModel>> RequiredFriends(string key)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var friendList = await database.Friends
+                .Where(x=>x.UserEmail == userEmail)
+                .Join(database.Users,
+                f => f.FriendEmail,
+                u => u.Email,
+                (f, u) => new FriendModel { 
+                    FriendEmail = f.FriendEmail,
+                    Name = u.Name 
+                })
+                .Where(i => EF.Functions.Like(i.Name, $"{key}%"))
+                .ToListAsync();
+
+            return friendList;
         }
     }
 }
