@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 namespace Api.Hubs
 {
     [Authorize]
-    public class ChatHub : Hub/*<IChatClient>*/
+    public class ChatHub : Hub
     {
         private readonly static ConnectionMapping<string> _connections = new ConnectionMapping<string>();
         private readonly DataContext dataContext;
@@ -26,12 +26,7 @@ namespace Api.Hubs
 
         public string GetConnectionId() => Context.ConnectionId;
 
-        public async Task SendMes(string message)
-        {
-            await Clients.All.SendAsync("sendmes", message);
-        }
-
-        public async Task SendToChat(MessageModel message)
+        public async Task SendToChatAsync(MessageModel message)
         {
 
             var user = await dataContext.Users.Where(item => item.Email == message.RecievedUser).SingleOrDefaultAsync();
@@ -44,7 +39,7 @@ namespace Api.Hubs
             {
                 foreach (var connection in connectionsId)
                 {
-                    await Clients.Client(connection).SendAsync("sendtochat", message);
+                    await Clients.Client(connection).SendAsync("sendtochatasync", message);
                 }
             }
 
@@ -60,7 +55,7 @@ namespace Api.Hubs
             await dataContext.SaveChangesAsync();
         }
 
-        public override Task OnConnectedAsync()
+        public override async Task OnConnectedAsync()
         {
             var identity = Context.User.Identity as ClaimsIdentity;
 
@@ -68,10 +63,12 @@ namespace Api.Hubs
 
             _connections.AddConnection(email, Context.ConnectionId);
 
-            return base.OnConnectedAsync();
+            await Clients.Client(Context.ConnectionId).SendAsync("OnConnected",_connections.GetAllConnections());
+
+            await base.OnConnectedAsync();
         }
 
-        public override Task OnDisconnectedAsync(Exception exception)
+        public override async Task OnDisconnectedAsync(Exception exception)
         {
             var identity = Context.User.Identity as ClaimsIdentity;
 
@@ -79,7 +76,10 @@ namespace Api.Hubs
 
             _connections.RemoveConnection(email, Context.ConnectionId);
 
-            return base.OnDisconnectedAsync(exception);
+            await Clients.Client(Context.ConnectionId).SendAsync("OnDisconnected", _connections.GetAllConnections());
+
+            await base.OnDisconnectedAsync(exception);
         }
+
     }
 }

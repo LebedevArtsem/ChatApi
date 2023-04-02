@@ -13,6 +13,11 @@ namespace Api.Infrasrtucture
             return connection;
         }
 
+        public IEnumerable<T> GetAllConnections()
+        {
+            return _connections.Keys;
+        }
+
         public void AddConnection(T key, string connectionId)
         {
             lock (_connections)

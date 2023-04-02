@@ -19,12 +19,12 @@ namespace Api.Controllers
     [Route("api/[controller]")]
     public class ChatController : ControllerBase
     {
-        private readonly IHubContext<ChatHub> _chatHub;
+        //private readonly IHubContext<ChatHub> _chatHub;
         private readonly DataContext database;
 
         public ChatController(IHubContext<ChatHub> chatHub, DataContext database)
         {
-            _chatHub = chatHub;
+            //_chatHub = chatHub;
             this.database = database;
         }
 
