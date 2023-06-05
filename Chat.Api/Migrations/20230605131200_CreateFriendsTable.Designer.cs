@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Api.Migrations
+namespace Chat.Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230317200503_UpdateDb")]
-    partial class UpdateDb
+    [Migration("20230605131200_CreateFriendsTable")]
+    partial class CreateFriendsTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace Api.Migrations
 
             NpgsqlModelBuilderExtensions.UseSerialColumns(modelBuilder);
 
-            modelBuilder.Entity("Api.Models.ChatMessage", b =>
+            modelBuilder.Entity("Chat.Domain.Friend", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,56 +34,17 @@ namespace Api.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("IsRead")
-                        .HasColumnType("boolean")
-                        .HasColumnName("isread");
-
-                    b.Property<string>("Message")
-                        .HasColumnType("text")
-                        .HasColumnName("message");
-
-                    b.Property<int>("RecievedUser")
-                        .HasColumnType("integer")
-                        .HasColumnName("recieved_person");
-
-                    b.Property<int>("SendedUser")
-                        .HasColumnType("integer")
-                        .HasColumnName("sended_person");
-
-                    b.Property<DateTime>("Time")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("datetime");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("messages");
-                });
-
-            modelBuilder.Entity("Api.Models.Friend", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("email")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("friend_email")
+                    b.Property<int>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("email");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("friend_email");
-
-                    b.ToTable("friends");
+                    b.ToTable("friends", (string)null);
                 });
 
-            modelBuilder.Entity("Api.Models.User", b =>
+            modelBuilder.Entity("Chat.Domain.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -97,11 +58,16 @@ namespace Api.Migrations
                         .HasColumnType("text")
                         .HasColumnName("email");
 
+                    b.Property<int?>("FriendId")
+                        .HasColumnType("integer");
+
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
 
@@ -115,25 +81,41 @@ namespace Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasAlternateKey("Email")
-                        .HasName("email");
+                    b.HasAlternateKey("Email");
 
-                    b.ToTable("users");
+                    b.HasIndex("Email");
+
+                    b.HasIndex("FriendId");
+
+                    b.ToTable("users", (string)null);
                 });
 
-            modelBuilder.Entity("Api.Models.Friend", b =>
+            modelBuilder.Entity("Chat.Domain.Friend", b =>
                 {
-                    b.HasOne("Api.Models.User", "UserEmail")
-                        .WithMany()
-                        .HasForeignKey("email");
+                    b.HasOne("Chat.Domain.User", "User")
+                        .WithMany("Friends")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.HasOne("Api.Models.User", "FriendEmail")
-                        .WithMany()
-                        .HasForeignKey("friend_email");
+                    b.Navigation("User");
+                });
 
-                    b.Navigation("FriendEmail");
+            modelBuilder.Entity("Chat.Domain.User", b =>
+                {
+                    b.HasOne("Chat.Domain.Friend", null)
+                        .WithMany("Friends")
+                        .HasForeignKey("FriendId");
+                });
 
-                    b.Navigation("UserEmail");
+            modelBuilder.Entity("Chat.Domain.Friend", b =>
+                {
+                    b.Navigation("Friends");
+                });
+
+            modelBuilder.Entity("Chat.Domain.User", b =>
+                {
+                    b.Navigation("Friends");
                 });
 #pragma warning restore 612, 618
         }

@@ -43,14 +43,14 @@ namespace Api.Hubs
                 }
             }
 
-            await dataContext.ChatMessages.AddAsync(new ChatMessage()
-            {
-                Message = message.Message,
-                SendedUser = message.SendedUser,
-                RecievedUser = message.RecievedUser,
-                IsRead = false,
-                Time = DateTime.UtcNow
-            });
+            //await dataContext.ChatMessages.AddAsync(new ChatMessage()
+            //{
+            //    Message = message.Message,
+            //    SendedUser = message.SendedUser,
+            //    RecievedUser = message.RecievedUser,
+            //    IsRead = false,
+            //    Time = DateTime.UtcNow
+            //});
 
             await dataContext.SaveChangesAsync();
         }

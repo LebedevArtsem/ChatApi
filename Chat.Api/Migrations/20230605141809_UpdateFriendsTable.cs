@@ -2,59 +2,61 @@
 
 #nullable disable
 
-namespace Api.Migrations
+namespace Chat.Api.Migrations
 {
     /// <inheritdoc />
-    public partial class UpdateDb20 : Migration
+    public partial class UpdateFriendsTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_friends_users_email",
+                name: "user_id",
                 table: "friends");
 
             migrationBuilder.RenameColumn(
-                name: "email",
+                name: "UserId",
                 table: "friends",
-                newName: "user_email");
+                newName: "user_id");
 
             migrationBuilder.RenameIndex(
-                name: "IX_friends_email",
+                name: "IX_friends_UserId",
                 table: "friends",
-                newName: "IX_friends_user_email");
+                newName: "IX_friends_user_id");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_friends_users_user_email",
+                name: "FK_friends_users_user_id",
                 table: "friends",
-                column: "user_email",
+                column: "user_id",
                 principalTable: "users",
-                principalColumn: "id");
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropForeignKey(
-                name: "FK_friends_users_user_email",
+                name: "FK_friends_users_user_id",
                 table: "friends");
 
             migrationBuilder.RenameColumn(
-                name: "user_email",
+                name: "user_id",
                 table: "friends",
-                newName: "email");
+                newName: "UserId");
 
             migrationBuilder.RenameIndex(
-                name: "IX_friends_user_email",
+                name: "IX_friends_user_id",
                 table: "friends",
-                newName: "IX_friends_email");
+                newName: "IX_friends_UserId");
 
             migrationBuilder.AddForeignKey(
-                name: "FK_friends_users_email",
+                name: "user_id",
                 table: "friends",
-                column: "email",
+                column: "UserId",
                 principalTable: "users",
-                principalColumn: "id");
+                principalColumn: "id",
+                onDelete: ReferentialAction.Cascade);
         }
     }
 }

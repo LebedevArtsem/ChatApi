@@ -9,11 +9,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace Api.Migrations
+namespace Chat.Api.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20230306213639_AddMessage")]
-    partial class AddMessage
+    [Migration("20230605082450_CreateUserTable")]
+    partial class CreateUserTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,14 +35,17 @@ namespace Api.Migrations
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Email")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("email");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
 
                     b.Property<string>("Password")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("password");
 
@@ -56,7 +59,11 @@ namespace Api.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("users");
+                    b.HasAlternateKey("Email");
+
+                    b.HasIndex("Email");
+
+                    b.ToTable("users", (string)null);
                 });
 #pragma warning restore 612, 618
         }
