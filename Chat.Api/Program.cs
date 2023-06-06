@@ -1,16 +1,17 @@
-using Api;
-using Api.Hubs;
-using Api.Infrasrtucture;
+using Chat.Infrastructure;
+using Chat.Api.Hubs;
+using Chat.Api.Infrasrtucture;
+using Chat.Infrastructure.DataBaseConfiguration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
 using System.Text;
+using Chat.Api;
 
 var builder = WebApplication.CreateBuilder(args);
 

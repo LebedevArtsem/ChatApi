@@ -1,15 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Api.Infrasrtucture
+namespace Chat.Api.Infrasrtucture;
+
+public interface ITokenService
 {
-    public interface ITokenService
-    {
-        string GenerateAccessToken(IEnumerable<Claim> claims);
+    string GenerateAccessToken(IEnumerable<Claim> claims);
 
-        string GenerateRefreshToken();
+    string GenerateRefreshToken();
 
-        ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
-    }
+    ClaimsPrincipal GetPrincipalFromExpiredToken(string token);
 }
+

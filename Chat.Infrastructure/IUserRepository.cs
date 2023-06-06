@@ -3,12 +3,12 @@
 namespace Chat.Infrastructure;
 public interface IUserRepository
 {
-    Task<ICollection<User>> Get();
+    Task<List<User>> GetAsync(CancellationToken token);
 
-    Task<User> GetById(int id);
+    Task<User> GetByIdAsync(int id, CancellationToken token);
 
-    Task Create(User user);
+    Task CreateAsync(User user, CancellationToken token);
 
-    Task Update(int id, User user);
+    Task UpdateAsync(int id, User user, CancellationToken token);
 }
 

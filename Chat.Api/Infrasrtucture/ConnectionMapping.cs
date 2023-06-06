@@ -1,61 +1,60 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Api.Infrasrtucture
+namespace Chat.Api.Infrasrtucture;
+
+public class ConnectionMapping<T>
 {
-    public class ConnectionMapping<T>
+    private readonly Dictionary<T, HashSet<string>> _connections = new Dictionary<T, HashSet<string>>();
+
+    public HashSet<string> GetConnection(T key)
     {
-        private readonly Dictionary<T, HashSet<string>> _connections = new Dictionary<T, HashSet<string>>();
+        _connections.TryGetValue(key, out var connection);
+        return connection;
+    }
 
-        public HashSet<string> GetConnection(T key)
-        {
-            _connections.TryGetValue(key,out var connection);
-            return connection;
-        }
+    public IEnumerable<T> GetAllConnections()
+    {
+        return _connections.Keys;
+    }
 
-        public IEnumerable<T> GetAllConnections()
+    public void AddConnection(T key, string connectionId)
+    {
+        lock (_connections)
         {
-            return _connections.Keys;
-        }
-
-        public void AddConnection(T key, string connectionId)
-        {
-            lock (_connections)
+            HashSet<string> connection;
+            if (!_connections.TryGetValue(key, out connection))
             {
-                HashSet<string> connection;
-                if (!_connections.TryGetValue(key, out connection))
-                {
-                    connection = new HashSet<string>();
-                    _connections.Add(key, connection);
-                }
+                connection = new HashSet<string>();
+                _connections.Add(key, connection);
+            }
 
-                lock (connection)
-                {
-                    connection.Add(connectionId);
-                }
+            lock (connection)
+            {
+                connection.Add(connectionId);
             }
         }
+    }
 
-        public void RemoveConnection(T key, string connectionId)
+    public void RemoveConnection(T key, string connectionId)
+    {
+        lock (_connections)
         {
-            lock (_connections)
+            HashSet<string> connection;
+            if (!_connections.TryGetValue(key, out connection))
             {
-                HashSet<string> connection;
-                if (!_connections.TryGetValue(key, out connection))
-                {
-                    return;
-                }
+                return;
+            }
 
-                lock (connection)
-                {
-                    connection.Remove(connectionId);
+            lock (connection)
+            {
+                connection.Remove(connectionId);
 
-                    if (connection.Count == 0)
-                    {
-                        _connections.Remove(key);
-                    }
+                if (connection.Count == 0)
+                {
+                    _connections.Remove(key);
                 }
             }
         }
     }
 }
+

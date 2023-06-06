@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Chat.Api.DatabaseConfiguration;
+namespace Chat.Infrastructure.DatabaseConfiguration;
 
 public class FriendsConfiguration : IEntityTypeConfiguration<Friend>
 {

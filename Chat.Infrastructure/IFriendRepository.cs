@@ -3,13 +3,13 @@
 namespace Chat.Infrastructure;
 public interface IFriendRepository
 {
-    Task<ICollection<Friend>> GetAsync(CancellationToken token);
+    Task<List<Friend>> GetAsync(CancellationToken token);
 
-    Task<Friend> GetByIdAsync(int id, CancellationToken token);
+    Task<List<User>> GetByUserIdAsync(User user, string key, CancellationToken token);
 
     Task CreateAsync(Friend friend, CancellationToken token);
 
-    Task UpdateAsync(int id, Friend friend, CancellationToken token);
+    Task UpdateAsync(int userId, User friend, CancellationToken token);
 
-    Task DeleteAsync(int id, CancellationToken token);
+    Task DeleteAsync(int userId, int friendId, CancellationToken token);
 }

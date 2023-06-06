@@ -1,4 +1,5 @@
-﻿namespace Chat.Domain;
+﻿namespace Chat.Infrastructure.Models;
+
 public class User
 {
     public int Id { get; set; }
@@ -13,5 +14,6 @@ public class User
 
     public DateTime RefreshTokenExpiryTime { get; set; }
 
-    public List<Friend> Friends { get; set; }
+    public List<User> Friends { get; set; }
 }
+
