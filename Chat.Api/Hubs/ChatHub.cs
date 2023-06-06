@@ -1,6 +1,5 @@
 ﻿using Api.Hubs.Clients;
 using Api.Infrasrtucture;
-using Api.Models;
 using Api.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
@@ -63,7 +62,7 @@ namespace Api.Hubs
 
             _connections.AddConnection(email, Context.ConnectionId);
 
-            await Clients.Client(Context.ConnectionId).SendAsync("OnConnected",_connections.GetAllConnections());
+            await Clients.Client(Context.ConnectionId).SendAsync("OnConnected", _connections.GetAllConnections());
 
             await base.OnConnectedAsync();
         }

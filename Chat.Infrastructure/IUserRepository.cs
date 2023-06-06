@@ -1,4 +1,6 @@
-﻿namespace Chat.Domain;
+﻿using Chat.Domain;
+
+namespace Chat.Infrastructure;
 public interface IUserRepository
 {
     Task<ICollection<User>> Get();

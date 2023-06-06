@@ -1,5 +1,4 @@
-﻿using Api.Models;
-using Chat.Api.DatabaseConfiguration;
+﻿using Chat.Api.DatabaseConfiguration;
 using Chat.Domain;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,9 +8,11 @@ namespace Api
     {
         public DbSet<User> Users { get; set; }
 
-        //public DbSet<ChatMessage> ChatMessages { get; set; }
+        public DbSet<ChatMessage> ChatMessages { get; set; }
 
         public DbSet<Friend> Friends { get; set; }
+
+        public DbSet<Message> Messages { get; set; }
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
@@ -29,6 +30,8 @@ namespace Api
 
             modelBuilder.ApplyConfiguration(new UsersConfiguration());
             modelBuilder.ApplyConfiguration(new FriendsConfiguration());
+            modelBuilder.ApplyConfiguration(new MessagesConfiguration());
+            modelBuilder.ApplyConfiguration(new ChatMessagesConfiguration());
         }
 
     }

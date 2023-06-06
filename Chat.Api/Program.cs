@@ -19,7 +19,6 @@ builder.Services.AddSingleton(settings);
 
 builder.Services.AddTransient<ITokenService, TokenService>();
 
-
 builder.Services.AddControllers();
 builder.Services.AddSignalR();
 
@@ -78,12 +77,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
@@ -93,11 +88,7 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-    endpoints.MapHub<ChatHub>("/hubs/chat");
-});
+app.MapControllers();
+app.MapHub<ChatHub>("/hubs/chat");
 
-//app.Run();
 await app.RunAsync();

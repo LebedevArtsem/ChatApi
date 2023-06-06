@@ -1,5 +1,4 @@
 ﻿using Api.Hubs;
-using Api.Models;
 using Api.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

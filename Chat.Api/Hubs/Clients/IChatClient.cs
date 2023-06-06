@@ -1,14 +1,11 @@
-﻿using Api.Models;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion.Internal;
-using System.Threading;
+﻿using Chat.Domain;
 using System.Threading.Tasks;
 
-namespace Api.Hubs.Clients
+namespace Api.Hubs.Clients;
+public interface IChatClient
 {
-    public interface IChatClient
-    {
-        Task ReceiveMessage(ChatMessage message);
+    Task ReceiveMessage(ChatMessage message);
 
-        Task SendMessage(string message);
-    }
+    Task SendMessage(string message);
 }
+
