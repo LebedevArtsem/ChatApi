@@ -2,7 +2,7 @@
 using Chat.Infrastructure.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chat.Infrastructure.DataBaseConfiguration;
+namespace Chat.Infrastructure.DatabaseConfiguration;
 
 public class DataContext : DbContext
 {

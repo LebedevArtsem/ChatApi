@@ -1,7 +1,7 @@
 using Chat.Infrastructure;
 using Chat.Api.Hubs;
 using Chat.Api.Infrasrtucture;
-using Chat.Infrastructure.DataBaseConfiguration;
+using Chat.Infrastructure.DatabaseConfiguration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;

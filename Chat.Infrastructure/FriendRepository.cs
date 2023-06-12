@@ -1,7 +1,6 @@
 ﻿using Chat.Domain;
-using Chat.Infrastructure.DataBaseConfiguration;
+using Chat.Infrastructure.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Chat.Infrastructure;
 
@@ -17,10 +16,10 @@ public class FriendRepository : IFriendRepository
     public async Task CreateAsync(Friend friend, CancellationToken token)
     {
         await _context.Friends
-            .AddAsync(friend);
+            .AddAsync(friend)
+            .AsTask()
+            .ContinueWith(_ => _context.SaveChangesAsync());
 
-        await _context
-            .SaveChangesAsync();
     }
 
     public async Task DeleteAsync(int userId, int friendId, CancellationToken token)
@@ -29,10 +28,9 @@ public class FriendRepository : IFriendRepository
             .Where(x =>
                 x.UserId == userId &&
                 x.UserFriend.Id == friendId)
-            .ExecuteDeleteAsync(token);
+            .ExecuteDeleteAsync(token)
+            .ContinueWith(async _ =>await _context.SaveChangesAsync(token));
 
-        await _context
-            .SaveChangesAsync(token);
     }
 
     public Task<List<Friend>> GetAsync(CancellationToken token)
@@ -42,14 +40,18 @@ public class FriendRepository : IFriendRepository
             .ToListAsync();
     }
 
-    public async Task<List<User>> GetByUserIdAsync(User user, string key, CancellationToken token)
+    public async Task<ICollection<Friend>> GetByUserIdAsync(User user, string key, CancellationToken token)
     {
-        await _context
-            .Entry(user)
-            .Collection(x => x.Friends)
-            .LoadAsync(token);
+        var friends1 = await _context.Entry(user).Collection(x=>x.Friends).Query().ToListAsync();
 
-        return user.Friends.Select(x => x.User).ToList(); // todo
+        var friends = await
+            _context.Friends
+            .Include(x => x.UserId)
+            .Where(x => x.UserId == user.Id && EF.Functions.Like(x.UserFriend.Name, $"{key}%"))
+            //.Select(x => new Models.User { x.User, x.UserFriend })
+            .ToListAsync(token) as ICollection<Friend>;
+
+        return friends;
     }
     public Task UpdateAsync(int userId, User friend, CancellationToken token)
     {

@@ -4,14 +4,14 @@ namespace Chat.Infrastructure;
 
 public interface IChatMessageRepository
 {
-    Task<ICollection<ChatMessage>> GetChatHistoryAsync(CancellationToken token);
+    Task<ICollection<ChatMessage>> GetChatHistoryAsync(int sender, int reciever, CancellationToken token);
 
-    Task<ChatMessage> GetById(int id);
+    Task<ChatMessage> GetByMessageIdAsync(int messageId, CancellationToken token);
 
-    Task Create(ChatMessage message);
+    Task CreateAsync(ChatMessage message, CancellationToken token);
 
-    Task Update(int id, ChatMessage message);
+    Task UpdateAsync(int messageId, Message message, CancellationToken token);
 
-    Task Delete(int id);
+    Task DeleteAsync(int messageId, CancellationToken token);
 }
 

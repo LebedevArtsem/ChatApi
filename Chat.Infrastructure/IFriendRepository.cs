@@ -5,7 +5,7 @@ public interface IFriendRepository
 {
     Task<List<Friend>> GetAsync(CancellationToken token);
 
-    Task<List<User>> GetByUserIdAsync(User user, string key, CancellationToken token);
+    Task<ICollection<Friend>> GetByUserIdAsync(User user, string key, CancellationToken token);
 
     Task CreateAsync(Friend friend, CancellationToken token);
 

@@ -13,5 +13,5 @@ public class User
 
     public DateTime RefreshTokenExpiryTime { get; set; }
 
-    public List<Friend> Friends { get; set; }
+    public ICollection<Friend> Friends { get; set; }
 }

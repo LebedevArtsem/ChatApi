@@ -1,6 +1,6 @@
-﻿namespace Chat.Api.Models
+﻿namespace Chat.Api.Models;
+
+public class RequestFriend
 {
-    public class RequestFriend
-    {
-    }
 }
+

@@ -24,6 +24,7 @@ public class UsersConfiguration : IEntityTypeConfiguration<User>
             .Property(x => x.Email)
             .HasColumnName("email");
 
+
         builder
             .HasAlternateKey(x => x.Email);
 

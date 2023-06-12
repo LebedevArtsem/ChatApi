@@ -1,7 +1,7 @@
 ﻿using Chat.Domain;
 using System.Threading.Tasks;
 
-namespace Api.Hubs.Clients;
+namespace Chat.Api.Hubs;
 public interface IChatClient
 {
     Task ReceiveMessage(ChatMessage message);
