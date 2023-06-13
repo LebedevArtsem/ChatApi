@@ -27,6 +27,13 @@ public class UserRepository : IUserRepository
             .ToListAsync(token);
     }
 
+    public Task<User> GetByEmailAsync(string email, CancellationToken token)
+    {
+        return
+            _context.Users
+            .SingleAsync(u => u.Email == email, token);
+    }
+
     public Task<User> GetByIdAsync(int id, CancellationToken token)
     {
         return

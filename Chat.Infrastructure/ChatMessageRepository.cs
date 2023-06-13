@@ -1,7 +1,6 @@
 ﻿using Chat.Domain;
 using Chat.Infrastructure.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography.X509Certificates;
 
 namespace Chat.Infrastructure;
 

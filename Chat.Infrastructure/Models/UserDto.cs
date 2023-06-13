@@ -1,6 +1,6 @@
 ﻿namespace Chat.Infrastructure.Models;
 
-public class User
+public class UserDto    
 {
     public int Id { get; set; }
 
@@ -14,6 +14,6 @@ public class User
 
     public DateTime RefreshTokenExpiryTime { get; set; }
 
-    public List<User> Friends { get; set; }
+    public List<UserDto> Friends { get; set; }
 }
 
