@@ -4,7 +4,7 @@ namespace Chat.Infrastructure;
 
 public interface IChatRepository
 {
-    Task<ICollection<Domain.Chat>> GetChatHistoryAsync(int sender, int reciever, CancellationToken token);
+    Task<ICollection<Domain.Chat>> GetChatHistoryAsync(int sender, int reciever, int skip, int take, CancellationToken token);
 
     Task<Domain.Chat> GetByMessageIdAsync(int messageId, CancellationToken token);
 

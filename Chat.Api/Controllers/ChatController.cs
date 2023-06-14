@@ -1,86 +1,107 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Chat.Api.Models;
+using Chat.Domain;
+using Chat.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.SignalR;
-using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Api.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/chat")]
 public class ChatController : ControllerBase
 {
-    //private readonly DataContext database;
+    private readonly IFriendRepository _friends;
+    private readonly IChatRepository _chats;
+    private readonly IUserRepository _users;
+    private readonly IMapper _mapper;
 
-    //public ChatController(DataContext database)
-    //{
-    //    this.database = database;
-    //}
+    public ChatController(IFriendRepository friends, IChatRepository chats, IUserRepository users, IMapper mapper)
+    {
+        _friends = friends;
+        _chats = chats;
+        _users = users;
+        _mapper = mapper;
+    }
 
-    //[HttpGet("friends")]
-    //public async Task<List<FriendModel>> Friends()
-    //{
-    //    var userEmail = User.FindFirstValue(ClaimTypes.Email);
+    [HttpGet("chat-history")]
+    public async Task<ActionResult<ICollection<Chat.Domain.Chat>>> GetChatHistory(
+        [FromQuery] ChatHistory chatHistory, CancellationToken token)
+    {
+        var userEmail = User.FindFirstValue(ClaimTypes.Email); // think
 
-    //    //if (user == null) { return Results.NotFound(); }
+        var user = _users.GetByEmailAsync(userEmail, token);
+        var friend = _users.GetByEmailAsync(chatHistory.FriendEmail, token);
+        await Task.WhenAll(user, friend);
 
-    //    var friends = await database.Friends
-    //        .Where(t => t.UserEmail == userEmail)
-    //        .Join(database.Users,
-    //        f => f.UserEmail,
-    //        u => u.Email, (f, u) => new
-    //        {
-    //            UserEmail = userEmail,
-    //            FriendEmail = f.Friends.Email,
-    //            Name = f.Friends.Name
-    //        })
-    //        .Select(t => new FriendModel { FriendEmail = t.FriendEmail, Name = t.Name })
-    //        .ToListAsync();
+        if (user == null || friend == null)
+        {
+            return Conflict();
+        }
 
-    //    return friends;
-    //}
+        var messageList = await
+            _chats
+            .GetChatHistoryAsync(user.Result.Id, friend.Result.Id, chatHistory.PageSkip, chatHistory.PageTake, token);
 
-    //[HttpGet("message-history")]
-    //public async Task<List<ChatMessage>> MessageHistory([FromQuery] string friendEmail)
-    //{
-    //    var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        return Ok(messageList);
+    }
 
-    //    var messageList =
-    //        await database.ChatMessages
-    //        .Where(
-    //            t =>
-    //                (t.SendUser.Email == userEmail && t.RecievedUser.Email == friendEmail) ||
-    //                (t.RecievedUser.Email == userEmail && t.SendUser.Email == friendEmail)
-    //            )
-    //        .Take(50)
-    //        .ToListAsync();
+    [HttpGet("find-friends")]
+    public async Task<ActionResult<ICollection<FriendModelResponse>>> RequiredFriends(string key, CancellationToken token)
+    {
+        var userEmail = User.FindFirstValue(ClaimTypes.Email); // think
 
-    //    return messageList;
-    //}
+        var user = await
+            _users
+            .GetByEmailAsync(userEmail, token);
 
-    //[HttpGet("find-friends")]
-    //public async Task<List<FriendModel>> RequiredFriends(string key)
-    //{
-    //    var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        if (user == null)
+        {
+            return Conflict();
+        }
 
-    //    var friendList = await database.Friends
-    //        .Where(x => x.UserEmail == userEmail)
-    //        .Join(database.Users,
-    //        f => f.FriendEmail,
-    //        u => u.Email,
-    //        (f, u) => new FriendModel
-    //        {
-    //            FriendEmail = f.FriendEmail,
-    //            Name = u.Name
-    //        })
-    //        .Where(i => EF.Functions.Like(i.Name, $"{key}%"))
-    //        .ToListAsync();
+        var friendList = await
+            _friends
+            .GetByUserIdAsync(user, key, token);
 
+        var friendListResponse =
+            friendList
+            .AsParallel()// todo
+            .Select(_mapper.Map<FriendModelResponse>)
+            .ToList();
 
-    //    return friendList;
-    //}
+        return Ok(friendListResponse);
+    }
+
+    [HttpPost("add-to-friend")]
+    public async Task<ActionResult> AddToFriend([FromBody] string friendEmail, CancellationToken token)
+    {
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+        var user = _users.GetByEmailAsync(userEmail, token);
+        var friend = _users.GetByEmailAsync(friendEmail, token);
+        await Task.WhenAll(user, friend);
+
+        if (user.Result == null || friend.Result == null)
+        {
+            return Conflict();
+        }
+
+        await _friends
+            .CreateAsync(new Friend()
+            {
+                User = user.Result,
+                UserFriend = friend.Result
+            },
+            token
+            );
+
+        return Ok();
+    }
 }

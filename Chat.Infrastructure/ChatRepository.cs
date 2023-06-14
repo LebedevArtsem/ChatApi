@@ -50,13 +50,15 @@ public class ChatRepository : IChatRepository
             .SingleOrDefaultAsync(x => x.MessageId == messageId, token);
     }
 
-    public async Task<ICollection<Domain.Chat>> GetChatHistoryAsync(int sender, int reciever, CancellationToken token)
+    public async Task<ICollection<Domain.Chat>> GetChatHistoryAsync(int sender, int reciever, int skip, int take, CancellationToken token)
     {
         var chat = await _context.Chats
             .Where(x => x.SenderId == sender && x.RecieverId == reciever)
             .Include(x => x.Message)
             .Include(x => x.Sender)
             .Include(x => x.Reciever)
+            .Skip(skip)
+            .Take(take)
             .ToListAsync(token);
 
         return chat;

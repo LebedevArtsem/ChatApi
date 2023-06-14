@@ -2,11 +2,15 @@
 
 namespace Chat.Api.Models;
 
-public class FriendModelRequest
+public class ChatHistory
 {
     [Required]
     public string FriendEmail { get; set; }
 
-    public string Name { get; set; }
+    [Required]
+    public int PageSkip { get; set; }
+
+    [Required]
+    public int PageTake { get; set; }
 }
 

@@ -2,7 +2,6 @@
 using Chat.Api.Models;
 using Chat.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Security.Claims;
@@ -26,24 +25,21 @@ public class TokenController : Controller
 
     [HttpPost]
     [Route("refresh")]
-    public async Task<IResult> Refresh(TokenModelResponse tokenModel, CancellationToken token)
+    public async Task<ActionResult> Refresh(TokenModelResponse tokenModel, CancellationToken token)
     {
-        if (tokenModel is null)
-        {
-            return Results.BadRequest();
-        }
-
         var principal = _tokenService.GetPrincipalFromExpiredToken(tokenModel.AccessToken);
         var email = principal.FindFirst(ClaimTypes.Email).Value;
 
         var user = await _users.GetByEmailAsync(email, token);
 
-        if (user == null ||
-            user.RefreshToken != tokenModel.RefreshToken ||
+        if (user == null)
+            return Conflict();
+
+
+        if (user.RefreshToken != tokenModel.RefreshToken ||
             user.RefreshTokenExpiryTime <= DateTime.Now)
-        {
-            return Results.BadRequest("Invalid client request");
-        }
+            return BadRequest("Invalid client request");
+
 
         var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
         var newRefreshToken = _tokenService.GenerateRefreshToken();
@@ -58,23 +54,23 @@ public class TokenController : Controller
             RefreshToken = newRefreshToken
         };
 
-        return Results.Ok(response);
+        return CreatedAtAction("Refresh token", response);
     }
 
     [HttpPost, Authorize]
     [Route("revoke")]
-    public async Task<IResult> Revoke(CancellationToken token)
+    public async Task<ActionResult> Revoke(CancellationToken token)
     {
         var email = ClaimsPrincipal.Current.FindFirst(ClaimTypes.Email).Value;
 
         var user = await _users.GetByEmailAsync(email, token);
         if (user == null)
-            return Results.BadRequest();
+            return Conflict();
 
         user.RefreshToken = null;
         await _users.UpdateAsync(user.Id, user, token);
 
-        return Results.NoContent();
+        return NoContent();
     }
 }
 

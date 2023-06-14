@@ -28,19 +28,18 @@ public class UserAccountController : Controller
     }
 
     [HttpPost("signin")]
-    public async Task<IResult> SignIn([FromBody] SignInUser signInUser, CancellationToken token)
+    public async Task<ActionResult> SignIn([FromBody] SignInUser signInUser, CancellationToken token)
     {
-        if (!ModelState.IsValid) return Results.BadRequest("Error");
-
         var user = await _users.GetByEmailAsync(signInUser.Email, token);
 
-        if (user == null) return Results.BadRequest("Please pass the valid Email");
+        if (user == null) 
+            return Conflict("User is not found");
 
         var hasher = new PasswordHasher<User>();
 
         var passwordValid = hasher.VerifyHashedPassword(user, user.Password, signInUser.Password);
         if (passwordValid == PasswordVerificationResult.Failed)
-            return Results.BadRequest("Please pass the valid Password");
+            return BadRequest("Please pass the valid Password");// todo: Wrong answer
 
         var claims = new List<Claim>
         {
@@ -62,14 +61,12 @@ public class UserAccountController : Controller
 
         await _users.UpdateAsync(user.Id, user, token);
 
-        return Results.Ok(response);
+        return Ok(response);
     }
 
     [HttpPost("signup")]
-    public async Task<IResult> SignUp([FromBody] SignUpUser signUpUser, CancellationToken token)
+    public async Task<ActionResult> SignUp([FromBody] SignUpUser signUpUser, CancellationToken token)
     {
-        if (!ModelState.IsValid) return Results.BadRequest("Error");
-
         var user = await _users.GetByEmailAsync(signUpUser.Email, token);
 
         if (user == null)
@@ -84,11 +81,11 @@ public class UserAccountController : Controller
 
             await _users.CreateAsync(user, token);
 
-            return Results.Ok("Fine");
+            return Ok();
         }
         else
         {
-            return Results.BadRequest("Error");
+            return Conflict();
         }
     }
 }
