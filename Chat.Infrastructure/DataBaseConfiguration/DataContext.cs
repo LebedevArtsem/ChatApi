@@ -1,5 +1,4 @@
 ﻿using Chat.Domain;
-using Chat.Infrastructure.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chat.Infrastructure.DatabaseConfiguration;
@@ -8,7 +7,7 @@ public class DataContext : DbContext
 {
     public DbSet<User> Users { get; set; }
 
-    public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<Domain.Chat> Chats { get; set; }
 
     public DbSet<Friend> Friends { get; set; }
 
@@ -22,6 +21,7 @@ public class DataContext : DbContext
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
         options.UseNpgsql(x => x.MigrationsAssembly("Chat.Infrastructure"));
+        base.OnConfiguring(options);
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -31,7 +31,7 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new UsersConfiguration());
         modelBuilder.ApplyConfiguration(new FriendsConfiguration());
         modelBuilder.ApplyConfiguration(new MessagesConfiguration());
-        modelBuilder.ApplyConfiguration(new ChatMessagesConfiguration());
+        modelBuilder.ApplyConfiguration(new ChatsConfiguration());
     }
 
 }

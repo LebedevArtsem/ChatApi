@@ -1,6 +1,6 @@
 using Chat.Infrastructure;
 using Chat.Api.Hubs;
-using Chat.Api.Infrasrtucture;
+using Chat.Api.Common;
 using Chat.Infrastructure.DatabaseConfiguration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
@@ -28,7 +28,8 @@ builder.Services.AddDbContext<DataContext>(
 
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFriendRepository, FriendRepository>();
-builder.Services.AddScoped<IChatMessageRepository, ChatMessageRepository>();
+builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

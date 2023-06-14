@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace Chat.Api.Infrasrtucture;
+namespace Chat.Api.Common;
 
 public class ConnectionMapping<T>
 {

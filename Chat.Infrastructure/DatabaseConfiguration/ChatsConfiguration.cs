@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chat.Infrastructure.DatabaseConfiguration;
 
-public class ChatMessagesConfiguration : IEntityTypeConfiguration<ChatMessage>
+public class ChatsConfiguration : IEntityTypeConfiguration<Domain.Chat>
 {
-    public void Configure(EntityTypeBuilder<ChatMessage> builder)
+    public void Configure(EntityTypeBuilder<Domain.Chat> builder)
     {
         builder
             .ToTable("chat_messages");

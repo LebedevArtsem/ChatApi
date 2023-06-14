@@ -1,7 +1,7 @@
 ﻿
 namespace Chat.Domain;
 
-public class ChatMessage
+public class Chat
 {
     public int Id { get; set; }
 

@@ -9,6 +9,8 @@ public class Friend
 
     public User User { get; set; }
 
+    public int UserFriendId { get; set; }
+
     public User UserFriend { get; set; }
        
 }

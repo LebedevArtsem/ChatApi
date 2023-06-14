@@ -3,6 +3,7 @@ using System;
 using Chat.Infrastructure.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,13 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Chat.Infrastructure.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20230613125131_UpdateFriendTable")]
+    partial class UpdateFriendTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.7")
+                .HasAnnotation("ProductVersion", "7.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseSerialColumns(modelBuilder);
@@ -31,23 +34,25 @@ namespace Chat.Infrastructure.Migrations
                     NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
 
                     b.Property<int>("MessageId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("message_id");
 
                     b.Property<int>("RecieverId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("reciever_id");
 
                     b.Property<int>("SenderId")
-                        .HasColumnType("integer");
+                        .HasColumnType("integer")
+                        .HasColumnName("sender_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("id");
 
                     b.HasIndex("MessageId");
 
-                    b.HasIndex("RecieverId");
-
                     b.HasIndex("SenderId");
 
-                    b.ToTable("ChatMessages");
+                    b.ToTable("chat_messages", (string)null);
                 });
 
             modelBuilder.Entity("Chat.Domain.Friend", b =>
@@ -80,37 +85,40 @@ namespace Chat.Infrastructure.Migrations
             modelBuilder.Entity("Chat.Domain.Message", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
+                        .HasColumnType("integer")
+                        .HasColumnName("id");
 
                     b.Property<bool>("IsChanged")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_changed");
 
                     b.Property<bool>("IsRead")
-                        .HasColumnType("boolean");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_read");
 
                     b.Property<string>("Text")
-                        .HasColumnType("text");
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("text");
 
                     b.Property<DateTime>("Time")
-                        .HasColumnType("timestamp with time zone");
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("time");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Messages");
+                    b.ToTable("messages", (string)null);
                 });
 
             modelBuilder.Entity("Chat.Domain.User", b =>
                 {
                     b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("integer")
                         .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseSerialColumn(b.Property<int>("Id"));
-                    NpgsqlPropertyBuilderExtensions.HasIdentityOptions(b.Property<int>("Id"), 1L, null, null, null, null, null);
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -152,12 +160,6 @@ namespace Chat.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Chat.Domain.User", "Reciever")
-                        .WithMany()
-                        .HasForeignKey("RecieverId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Chat.Domain.User", "Sender")
                         .WithMany()
                         .HasForeignKey("SenderId")
@@ -165,8 +167,6 @@ namespace Chat.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Message");
-
-                    b.Navigation("Reciever");
 
                     b.Navigation("Sender");
                 });
@@ -188,6 +188,29 @@ namespace Chat.Infrastructure.Migrations
                     b.Navigation("User");
 
                     b.Navigation("UserFriend");
+                });
+
+            modelBuilder.Entity("Chat.Domain.Message", b =>
+                {
+                    b.HasOne("Chat.Domain.ChatMessage", null)
+                        .WithOne()
+                        .HasForeignKey("Chat.Domain.Message", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Chat.Domain.User", b =>
+                {
+                    b.HasOne("Chat.Domain.ChatMessage", null)
+                        .WithOne("Reciever")
+                        .HasForeignKey("Chat.Domain.User", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Chat.Domain.ChatMessage", b =>
+                {
+                    b.Navigation("Reciever");
                 });
 
             modelBuilder.Entity("Chat.Domain.User", b =>

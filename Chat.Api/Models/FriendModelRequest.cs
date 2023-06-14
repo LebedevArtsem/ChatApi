@@ -1,6 +1,6 @@
 ﻿namespace Chat.Api.Models;
 
-public class FriendModel
+public class FriendModelRequest
 {
     public string FriendEmail { get; set; }
 

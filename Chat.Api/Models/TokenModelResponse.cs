@@ -2,7 +2,7 @@
 
 namespace Chat.Api.Models;
 
-public class TokenModel
+public class TokenModelResponse
 {
     [Required]
     public string AccessToken { get; set; }

@@ -2,15 +2,15 @@
 
 namespace Chat.Api.Models;
 
-public class MessageModel
+public class ChatRequest
 {
     [Required]
     public string Message { get; set; }
 
     [Required]
-    public string RecievedUser { get; set; }
+    public string RecieverEmail { get; set; }
 
     [Required]
-    public string SendedUser { get; set; }
+    public string SenderEmail { get; set; }
 }
 

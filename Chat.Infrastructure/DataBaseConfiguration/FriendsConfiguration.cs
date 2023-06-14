@@ -1,6 +1,7 @@
 ﻿using Chat.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Chat.Infrastructure.DatabaseConfiguration;
 
@@ -19,9 +20,14 @@ public class FriendsConfiguration : IEntityTypeConfiguration<Friend>
             .HasColumnName("id");
 
         builder
+            .Property(x => x.UserFriendId)
+            .HasColumnName("friend_id");
+
+        builder
             .HasOne(x => x.UserFriend)
             .WithMany(x => x.Friends)
-            .HasForeignKey("friend_id")
+            .HasForeignKey(x => x.UserFriendId)
+            .HasPrincipalKey(x=>x.Id)
             .OnDelete(DeleteBehavior.Cascade);
 
         builder

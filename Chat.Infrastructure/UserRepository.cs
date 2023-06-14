@@ -15,9 +15,9 @@ public class UserRepository : IUserRepository
     public async Task CreateAsync(User user, CancellationToken token)
     {
         await _context.Users
-            .AddAsync(user, token)
-            .AsTask()
-            .ContinueWith(async _ => await _context.SaveChangesAsync(token));
+            .AddAsync(user, token);
+
+        await _context.SaveChangesAsync(token);
     }
 
     public Task<List<User>> GetAsync(CancellationToken token)
@@ -31,7 +31,7 @@ public class UserRepository : IUserRepository
     {
         return
             _context.Users
-            .SingleAsync(u => u.Email == email, token);
+            .SingleOrDefaultAsync(u => u.Email == email, token);
     }
 
     public Task<User> GetByIdAsync(int id, CancellationToken token)

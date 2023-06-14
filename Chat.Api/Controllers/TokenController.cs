@@ -1,4 +1,4 @@
-﻿using Chat.Api.Infrasrtucture;
+﻿using Chat.Api.Common;
 using Chat.Api.Models;
 using Chat.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
@@ -26,7 +26,7 @@ public class TokenController : Controller
 
     [HttpPost]
     [Route("refresh")]
-    public async Task<IResult> Refresh(TokenModel tokenModel, CancellationToken token)
+    public async Task<IResult> Refresh(TokenModelResponse tokenModel, CancellationToken token)
     {
         if (tokenModel is null)
         {

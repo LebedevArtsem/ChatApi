@@ -1,5 +1,5 @@
 ﻿using Chat.Api;
-using Chat.Api.Infrasrtucture;
+using Chat.Api.Common;
 using Chat.Api.Models;
 using Chat.Domain;
 using Chat.Infrastructure;
