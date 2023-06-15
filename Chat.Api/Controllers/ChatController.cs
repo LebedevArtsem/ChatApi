@@ -34,7 +34,7 @@ public class ChatController : ControllerBase
     public async Task<ActionResult<ICollection<Chat.Domain.Chat>>> GetChatHistory(
         [FromQuery] ChatHistory chatHistory, CancellationToken token)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email); // think
+        var userEmail = User.FindFirstValue(ClaimTypes.Email); // todo
 
         var user = _users.GetByEmailAsync(userEmail, token);
         var friend = _users.GetByEmailAsync(chatHistory.FriendEmail, token);
@@ -55,7 +55,7 @@ public class ChatController : ControllerBase
     [HttpGet("find-friends")]
     public async Task<ActionResult<ICollection<FriendModelResponse>>> RequiredFriends(string key, CancellationToken token)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email); // think
+        var userEmail = User.FindFirstValue(ClaimTypes.Email); // todo
 
         var user = await
             _users
@@ -79,7 +79,7 @@ public class ChatController : ControllerBase
         return Ok(friendListResponse);
     }
 
-    [HttpPost("add-to-friend")]
+    [HttpPost("add-friend")]
     public async Task<ActionResult> AddToFriend([FromBody] string friendEmail, CancellationToken token)
     {
         var userEmail = User.FindFirstValue(ClaimTypes.Email);

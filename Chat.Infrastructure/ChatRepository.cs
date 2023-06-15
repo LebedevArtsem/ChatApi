@@ -8,7 +8,7 @@ public class ChatRepository : IChatRepository
 {
     private readonly DataContext _context;
 
-    public ChatRepository(DataContext context, CancellationToken token)
+    public ChatRepository(DataContext context)
     {
         _context = context;
     }

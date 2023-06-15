@@ -14,4 +14,8 @@ public class User
     public DateTime RefreshTokenExpiryTime { get; set; }
 
     public ICollection<Friend> Friends { get; set; }
+
+    public ICollection<Chat> SenderChats { get; set; }
+
+    public ICollection<Chat> RecieverChats { get; set; }
 }

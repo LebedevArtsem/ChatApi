@@ -1,5 +1,4 @@
-﻿using Chat.Domain;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Chat.Infrastructure.DatabaseConfiguration;
@@ -9,16 +8,17 @@ public class ChatsConfiguration : IEntityTypeConfiguration<Domain.Chat>
     public void Configure(EntityTypeBuilder<Domain.Chat> builder)
     {
         builder
-            .ToTable("chat_messages");
+            .ToTable("chats");
 
         builder
-            .HasKey(x => x.Id)
-            .HasName("id");
+            .Property(x => x.Id)
+            .HasColumnName("id")
+            .HasIdentityOptions(startValue: 1);
 
         builder
-            .HasOne<Message>()
-            .WithOne()
-            .HasForeignKey<Message>(x => x.Id);
+            .HasOne(x=>x.Message)
+            .WithMany(x => x.Chats)
+            .HasForeignKey(x => x.MessageId);
 
         builder
             .Property(x => x.MessageId)
@@ -26,8 +26,8 @@ public class ChatsConfiguration : IEntityTypeConfiguration<Domain.Chat>
 
         builder
             .HasOne(x => x.Sender)
-            .WithOne()
-            .HasForeignKey<User>(x => x.Id);
+            .WithMany(x => x.SenderChats)
+            .HasForeignKey(x => x.SenderId);
 
         builder
             .Property(x => x.SenderId)
@@ -35,13 +35,12 @@ public class ChatsConfiguration : IEntityTypeConfiguration<Domain.Chat>
 
         builder
             .HasOne(x => x.Reciever)
-            .WithOne()
-            .HasForeignKey<User>(x => x.Id);
+            .WithMany(x => x.RecieverChats)
+            .HasForeignKey(x => x.RecieverId);
 
         builder
             .Property(x => x.RecieverId)
             .HasColumnName("reciever_id");
-
     }
 }
 

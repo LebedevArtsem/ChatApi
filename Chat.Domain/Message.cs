@@ -11,5 +11,7 @@ public class Message
     public bool IsRead { get; set; }
 
     public bool IsChanged { get; set; }
+
+    public ICollection<Chat> Chats { get; set; }
 }
 

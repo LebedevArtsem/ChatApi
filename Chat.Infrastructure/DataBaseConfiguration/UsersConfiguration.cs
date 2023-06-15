@@ -14,18 +14,18 @@ public class UsersConfiguration : IEntityTypeConfiguration<User>
         builder
             .ToTable("users");
 
+        //builder
+        //    .HasKey(x => x.Id)
+        //    .HasName("id");
+
         builder
             .Property(x => x.Id)
             .HasColumnName("id")
             .HasIdentityOptions(startValue: 1);
 
         builder
-            .HasKey(x => x.Id);
-
-        builder
             .Property(x => x.Email)
             .HasColumnName("email");
-
 
         builder
             .HasAlternateKey(x => x.Email);
@@ -33,7 +33,7 @@ public class UsersConfiguration : IEntityTypeConfiguration<User>
         builder
             .Property(x => x.Name)
             .HasColumnName("name")
-        .IsRequired();
+            .IsRequired();
 
         builder
             .Property(x => x.Password)
