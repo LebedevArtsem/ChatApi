@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Chat.Api.Models;
 using Chat.Domain;
-using Chat.Infrastructure;
+using Chat.DataAccessLayer.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
@@ -36,24 +36,21 @@ public class ChatController : ControllerBase
     {
         var userEmail = User.FindFirstValue(ClaimTypes.Email); // todo
 
-        var user = _users.GetByEmailAsync(userEmail, token);
-        var friend = _users.GetByEmailAsync(chatHistory.FriendEmail, token);
-        await Task.WhenAll(user, friend);
-
-        if (user == null || friend == null)
-        {
-            return Conflict();
-        }
+        var userTask = _users.GetByEmailAsync(userEmail, token);
+        var friendTask = _users.GetByEmailAsync(chatHistory.FriendEmail, token);
+        await Task.WhenAll(userTask, friendTask);
 
         var messageList = await
             _chats
-            .GetChatHistoryAsync(user.Result.Id, friend.Result.Id, chatHistory.PageSkip, chatHistory.PageTake, token);
+            .GetChatHistoryAsync(userTask.Result.Id, friendTask.Result.Id, chatHistory.PageSkip, chatHistory.PageTake, token);
 
-        return Ok(messageList);
+        var messageListResponse = messageList.Select(_mapper.Map<ChatResponse>);
+
+        return Ok(messageListResponse);
     }
 
     [HttpGet("find-friends")]
-    public async Task<ActionResult<ICollection<FriendModelResponse>>> RequiredFriends(string key, CancellationToken token)
+    public async Task<ActionResult<ICollection<FriendResponse>>> RequiredFriends([FromQuery] string key, CancellationToken token)
     {
         var userEmail = User.FindFirstValue(ClaimTypes.Email); // todo
 
@@ -61,46 +58,34 @@ public class ChatController : ControllerBase
             _users
             .GetByEmailAsync(userEmail, token);
 
-        if (user == null)
-        {
-            return Conflict();
-        }
-
         var friendList = await
             _friends
             .GetByUserIdAsync(user, key, token);
 
         var friendListResponse =
             friendList
-            .AsParallel()// todo
-            .Select(_mapper.Map<FriendModelResponse>)
+            .Select(_mapper.Map<FriendResponse>)
             .ToList();
 
         return Ok(friendListResponse);
     }
 
     [HttpPost("add-friend")]
-    public async Task<ActionResult> AddToFriend([FromBody] string friendEmail, CancellationToken token)
+    public async Task<ActionResult> AddToFriend([FromBody] FriendRequest friend, CancellationToken token)
     {
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-        var user = _users.GetByEmailAsync(userEmail, token);
-        var friend = _users.GetByEmailAsync(friendEmail, token);
-        await Task.WhenAll(user, friend);
-
-        if (user.Result == null || friend.Result == null)
-        {
-            return Conflict();
-        }
+        var userTask = _users.GetByEmailAsync(userEmail, token);
+        var friendTask = _users.GetByEmailAsync(friend.FriendEmail, token);
+        await Task.WhenAll(userTask, friendTask);
 
         await _friends
             .CreateAsync(new Friend()
             {
-                User = user.Result,
-                UserFriend = friend.Result
+                User = userTask.Result,
+                UserFriend = friendTask.Result
             },
-            token
-            );
+            token);
 
         return Ok();
     }

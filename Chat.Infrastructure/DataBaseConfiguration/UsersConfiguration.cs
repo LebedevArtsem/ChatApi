@@ -1,9 +1,8 @@
 ﻿using Chat.Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Security.Cryptography.X509Certificates;
 
-namespace Chat.Infrastructure.DatabaseConfiguration;
+namespace Chat.DataAccessLayer.DatabaseConfiguration;
 public class UsersConfiguration : IEntityTypeConfiguration<User>
 {
     public void Configure(EntityTypeBuilder<User> builder)
@@ -13,10 +12,6 @@ public class UsersConfiguration : IEntityTypeConfiguration<User>
 
         builder
             .ToTable("users");
-
-        //builder
-        //    .HasKey(x => x.Id)
-        //    .HasName("id");
 
         builder
             .Property(x => x.Id)
@@ -36,18 +31,19 @@ public class UsersConfiguration : IEntityTypeConfiguration<User>
             .IsRequired();
 
         builder
-            .Property(x => x.Password)
-            .HasColumnName("password")
+            .Property(x => x.Hash)
+            .HasColumnName("hash")
             .IsRequired();
 
         builder
-            .Property(x => x.RefreshToken)
-            .HasColumnName("refresh_token");
+            .HasOne(x => x.Token)
+            .WithOne(x => x.User)
+            .HasForeignKey<User>(x=>x.TokenId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         builder
-            .Property(x => x.RefreshTokenExpiryTime)
-            .HasColumnName("refresh_token_expiry_time");
-
+            .Property(x => x.TokenId)
+            .HasColumnName("token_id");
     }
 }
 

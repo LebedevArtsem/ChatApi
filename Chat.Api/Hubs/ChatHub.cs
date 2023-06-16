@@ -1,6 +1,6 @@
 ﻿using Chat.Api.Models;
 using Chat.Domain;
-using Chat.Infrastructure;
+using Chat.DataAccessLayer.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using System;

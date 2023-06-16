@@ -1,6 +1,6 @@
-﻿using Chat.Api.Common;
+﻿using Chat.Api.Services;
 using Chat.Api.Models;
-using Chat.Infrastructure;
+using Chat.DataAccessLayer.Repositories;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -12,41 +12,39 @@ namespace Api.Controllers;
 
 [Route("api/token")]
 [ApiController]
-public class TokenController : Controller
+public class TokenController : ControllerBase
 {
     private readonly IUserRepository _users;
     private readonly ITokenService _tokenService;
+    private readonly ITokenRepository _tokens;
 
-    public TokenController(IUserRepository users, ITokenService tokenService)
+    public TokenController(IUserRepository users, ITokenService tokenService, ITokenRepository tokens)
     {
         _users = users;
         _tokenService = tokenService;
+        _tokens = tokens;
     }
 
-    [HttpPost]
-    [Route("refresh")]
-    public async Task<ActionResult> Refresh(TokenModelResponse tokenModel, CancellationToken token)
+    [HttpPost("refresh")]
+    public async Task<ActionResult> Refresh([FromBody] TokenModelResponse tokenModel, CancellationToken cancellationToken)
     {
         var principal = _tokenService.GetPrincipalFromExpiredToken(tokenModel.AccessToken);
         var email = principal.FindFirst(ClaimTypes.Email).Value;
 
-        var user = await _users.GetByEmailAsync(email, token);
+        var user = await _users.GetByEmailAsync(email, cancellationToken);
 
-        if (user == null)
-            return Conflict();
+        var userToken = await _tokens.GetAsync(user.TokenId, cancellationToken);
 
-
-        if (user.RefreshToken != tokenModel.RefreshToken ||
-            user.RefreshTokenExpiryTime <= DateTime.Now)
+        if (userToken.RefreshToken != tokenModel.RefreshToken ||
+            userToken.RefreshTokenExpiryTime <= DateTime.Now)
             return BadRequest("Invalid client request");
-
 
         var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
         var newRefreshToken = _tokenService.GenerateRefreshToken();
 
-        user.RefreshToken = newRefreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
-        await _users.UpdateAsync(user.Id, user, token);
+        userToken.RefreshToken = newRefreshToken;
+        userToken.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
+        await _tokens.UpdateAsync(userToken.Id, userToken, cancellationToken);
 
         var response = new
         {
@@ -57,18 +55,16 @@ public class TokenController : Controller
         return CreatedAtAction("Refresh token", response);
     }
 
-    [HttpPost, Authorize]
-    [Route("revoke")]
-    public async Task<ActionResult> Revoke(CancellationToken token)
+    [HttpPost("revoke"), Authorize]
+    public async Task<ActionResult> Revoke(CancellationToken cancellationToken)
     {
         var email = ClaimsPrincipal.Current.FindFirst(ClaimTypes.Email).Value;
 
-        var user = await _users.GetByEmailAsync(email, token);
+        var user = await _users.GetByEmailAsync(email, cancellationToken);
         if (user == null)
-            return Conflict();
+            return NotFound();
 
-        user.RefreshToken = null;
-        await _users.UpdateAsync(user.Id, user, token);
+        await _tokens.DeleteAsync(user.TokenId, cancellationToken);
 
         return NoContent();
     }

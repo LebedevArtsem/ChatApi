@@ -8,8 +8,11 @@ public class MapperProfile : Profile
 {
     public MapperProfile()
     {
-        CreateMap<Friend, FriendModelResponse>();
+        CreateMap<Friend, FriendResponse>();
 
+        CreateMap<Domain.User, Models.UserApi>();
+
+        CreateMap<Domain.Chat, ChatResponse>();
     }
 }
 

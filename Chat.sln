@@ -5,9 +5,9 @@ VisualStudioVersion = 17.4.33110.190
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Api", "Chat.Api\Chat.Api.csproj", "{2F32B16A-AAC7-4657-9050-E5A2F308D4DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Domain", "Chat.Domain\Chat.Domain.csproj", "{F57D2B04-04C4-4821-AE0F-F5ABE3BB4548}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.Domain", "Chat.Domain\Chat.Domain.csproj", "{F57D2B04-04C4-4821-AE0F-F5ABE3BB4548}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Chat.Infrastructure", "Chat.Infrastructure\Chat.Infrastructure.csproj", "{51AB8B18-2447-4639-B28F-9BEF77CE67C4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Chat.DataAccessLayer", "Chat.Infrastructure\Chat.DataAccessLayer.csproj", "{51AB8B18-2447-4639-B28F-9BEF77CE67C4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

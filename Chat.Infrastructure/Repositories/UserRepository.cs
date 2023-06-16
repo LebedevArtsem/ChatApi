@@ -1,8 +1,8 @@
 ﻿using Chat.Domain;
-using Chat.Infrastructure.DatabaseConfiguration;
+using Chat.DataAccessLayer.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chat.Infrastructure;
+namespace Chat.DataAccessLayer.Repositories;
 public class UserRepository : IUserRepository
 {
     private readonly DataContext _context;
@@ -12,12 +12,13 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task CreateAsync(User user, CancellationToken token)
+    public Task<int> CreateAsync(User user, CancellationToken token)
     {
-        await _context.Users
-            .AddAsync(user, token);
-
-        await _context.SaveChangesAsync(token);
+        return _context.Users
+            .AddAsync(user, token)
+            .AsTask()
+            .ContinueWith(async _ => await _context.SaveChangesAsync(token))
+            .Unwrap();
     }
 
     public Task<List<User>> GetAsync(CancellationToken token)
@@ -38,7 +39,7 @@ public class UserRepository : IUserRepository
     {
         return
             _context.Users
-            .SingleAsync(u => u.Id == id, token);
+            .SingleOrDefaultAsync(u => u.Id == id, token);
     }
 
     public Task UpdateAsync(int id, User user, CancellationToken token)
@@ -46,7 +47,12 @@ public class UserRepository : IUserRepository
         return
             _context.Users
             .Where(x => x.Id == id)
-            .ExecuteUpdateAsync(x => x.SetProperty(x => x, user), token);
+            .ExecuteUpdateAsync(
+                x => x
+                .SetProperty(x => x.Email, user.Email)
+                .SetProperty(x=>x.Name,user.Name)
+                .SetProperty(x=>x.Hash,user.Hash)
+                .SetProperty(x=>x.TokenId,user.TokenId),
+                token);
     }
 }
-

@@ -2,11 +2,9 @@
 
 namespace Chat.Api.Models;
 
-public class FriendModelRequest
+public class FriendRequest
 {
     [Required]
     public string FriendEmail { get; set; }
-
-    public string Name { get; set; }
 }
 

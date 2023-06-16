@@ -1,7 +1,7 @@
 ﻿using Chat.Domain;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chat.Infrastructure.DatabaseConfiguration;
+namespace Chat.DataAccessLayer.DatabaseConfiguration;
 
 public class DataContext : DbContext
 {
@@ -13,6 +13,8 @@ public class DataContext : DbContext
 
     public DbSet<Message> Messages { get; set; }
 
+    public DbSet<Token> Tokens { get; set; }
+
     public DataContext(DbContextOptions<DataContext> options) : base(options)
     {
 
@@ -20,7 +22,7 @@ public class DataContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder options)
     {
-        options.UseNpgsql(x => x.MigrationsAssembly("Chat.Infrastructure"));
+        options.UseNpgsql(x => x.MigrationsAssembly("Chat.DataAccessLayer"));
         base.OnConfiguring(options);
     }
 
@@ -32,6 +34,7 @@ public class DataContext : DbContext
         modelBuilder.ApplyConfiguration(new FriendsConfiguration());
         modelBuilder.ApplyConfiguration(new MessagesConfiguration());
         modelBuilder.ApplyConfiguration(new ChatsConfiguration());
+        modelBuilder.ApplyConfiguration(new TokensConfiguration());
     }
 
 }

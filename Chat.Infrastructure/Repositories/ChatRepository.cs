@@ -1,8 +1,8 @@
 ﻿using Chat.Domain;
-using Chat.Infrastructure.DatabaseConfiguration;
+using Chat.DataAccessLayer.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chat.Infrastructure;
+namespace Chat.DataAccessLayer.Repositories;
 
 public class ChatRepository : IChatRepository
 {

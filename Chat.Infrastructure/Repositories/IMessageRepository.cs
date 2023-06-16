@@ -1,6 +1,6 @@
 ﻿using Chat.Domain;
 
-namespace Chat.Infrastructure;
+namespace Chat.DataAccessLayer.Repositories;
 
 public interface IMessageRepository
 {

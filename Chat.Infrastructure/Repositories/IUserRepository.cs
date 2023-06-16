@@ -1,6 +1,6 @@
 ﻿using Chat.Domain;
 
-namespace Chat.Infrastructure;
+namespace Chat.DataAccessLayer.Repositories;
 public interface IUserRepository
 {
     Task<List<User>> GetAsync(CancellationToken token);
@@ -9,7 +9,7 @@ public interface IUserRepository
 
     Task<User> GetByEmailAsync(string email, CancellationToken token);
 
-    Task CreateAsync(User user, CancellationToken token);
+    Task<int> CreateAsync(User user, CancellationToken token);
 
     Task UpdateAsync(int id, User user, CancellationToken token);
 }

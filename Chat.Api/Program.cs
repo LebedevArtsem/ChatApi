@@ -1,7 +1,6 @@
-using Chat.Infrastructure;
 using Chat.Api.Hubs;
-using Chat.Api.Common;
-using Chat.Infrastructure.DatabaseConfiguration;
+using Chat.Api.Services;
+using Chat.DataAccessLayer.DatabaseConfiguration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
@@ -13,6 +12,8 @@ using Swashbuckle.AspNetCore.Filters;
 using System.Text;
 using Chat.Api;
 using System;
+using Chat.DataAccessLayer.Repositories;
+using Chat.Api.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,7 +22,10 @@ builder.Services.AddSingleton(settings);
 
 builder.Services.AddTransient<ITokenService, TokenService>();
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<ExceptionFilter>();
+});
 builder.Services.AddSignalR();
 
 builder.Services.AddDbContext<DataContext>(
@@ -33,6 +37,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IFriendRepository, FriendRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
 builder.Services.AddScoped<IChatRepository, ChatRepository>();
+builder.Services.AddScoped<ITokenRepository, TokenRepository>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>

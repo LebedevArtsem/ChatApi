@@ -1,8 +1,8 @@
 ﻿using Chat.Domain;
-using Chat.Infrastructure.DatabaseConfiguration;
+using Chat.DataAccessLayer.DatabaseConfiguration;
 using Microsoft.EntityFrameworkCore;
 
-namespace Chat.Infrastructure;
+namespace Chat.DataAccessLayer.Repositories;
 
 public class FriendRepository : IFriendRepository
 {
@@ -13,23 +13,23 @@ public class FriendRepository : IFriendRepository
         _context = context;
     }
 
-    public async Task CreateAsync(Friend friend, CancellationToken token)
+    public Task<int> CreateAsync(Friend friend, CancellationToken token)
     {
-        await _context.Friends
+        return _context.Friends
             .AddAsync(friend)
             .AsTask()
-            .ContinueWith(_ => _context.SaveChangesAsync());
+            .ContinueWith(async _ => await _context.SaveChangesAsync()).Unwrap();
 
     }
 
-    public async Task DeleteAsync(int userId, int friendId, CancellationToken token)
+    public Task DeleteAsync(int userId, int friendId, CancellationToken token)
     {
-        await _context.Friends
+        return _context.Friends
             .Where(x =>
                 x.UserId == userId &&
                 x.UserFriend.Id == friendId)
             .ExecuteDeleteAsync(token)
-            .ContinueWith(async _ =>await _context.SaveChangesAsync(token));
+            .ContinueWith(async _ => await _context.SaveChangesAsync(token));
 
     }
 
@@ -42,8 +42,6 @@ public class FriendRepository : IFriendRepository
 
     public async Task<ICollection<Friend>> GetByUserIdAsync(User user, string key, CancellationToken token)
     {
-        var friends1 = await _context.Entry(user).Collection(x=>x.Friends).Query().ToListAsync();
-
         var friends = await
             _context.Friends
             .Include(x => x.UserId)
@@ -58,7 +56,10 @@ public class FriendRepository : IFriendRepository
         return
             _context.Friends
             .Where(x => x.UserId == userId && x.UserFriend.Id == friend.Id)
-            .ExecuteUpdateAsync(x => x.SetProperty(x => x.UserFriend, friend));
+            .ExecuteUpdateAsync(
+                x => x
+                .SetProperty(x => x.UserFriend, friend),
+                token);
     }
 }
 

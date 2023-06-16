@@ -1,8 +1,8 @@
 ﻿using Chat.Api;
-using Chat.Api.Common;
+using Chat.Api.Services;
 using Chat.Api.Models;
 using Chat.Domain;
-using Chat.Infrastructure;
+using Chat.DataAccessLayer.Repositories;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -15,35 +15,35 @@ namespace Api.Controllers;
 
 [ApiController]
 [Route("api/auth")]
-public class UserAccountController : Controller
+public class UserAccountController : ControllerBase
 {
     private readonly ITokenService _tokenService;
     private readonly IUserRepository _users;
+    private readonly ITokenRepository _tokens;
 
-    public UserAccountController(IUserRepository users, AppSettings appSettings)
+    public UserAccountController(IUserRepository users, ITokenRepository tokens, AppSettings appSettings)
     {
         _users = users;
         _tokenService = new TokenService(appSettings);
+        _tokens = tokens;
     }
 
-    [HttpPost("signin")]
-    public async Task<ActionResult> SignIn([FromBody] SignInUser signInUser, CancellationToken token)
+    [HttpPost("sign-in")]
+
+    public async Task<IActionResult> SignIn([FromBody] SignInUser signInUser, CancellationToken cancellationToken)
     {
-        var user = await _users.GetByEmailAsync(signInUser.Email, token);
+        var user = await _users.GetByEmailAsync(signInUser.Email, cancellationToken);
 
-        if (user == null) 
-            return Conflict("User is not found");
+        var hasher = new PasswordHasher<Chat.Domain.User>();
 
-        var hasher = new PasswordHasher<User>();
-
-        var passwordValid = hasher.VerifyHashedPassword(user, user.Password, signInUser.Password);
+        var passwordValid = hasher.VerifyHashedPassword(user, user.Hash, signInUser.Password);
         if (passwordValid == PasswordVerificationResult.Failed)
-            return BadRequest("Please pass the valid Password");// todo: Wrong answer
+            return BadRequest("Please pass the valid Password");
 
         var claims = new List<Claim>
         {
             new Claim(ClaimTypes.Name,user.Name),
-            new Claim(ClaimTypes.Email,user.Email),
+            new Claim(ClaimTypes.Email,user.Email)
         };
 
         var accessToken = _tokenService.GenerateAccessToken(claims);
@@ -55,37 +55,38 @@ public class UserAccountController : Controller
             RefreshToken = refreshToken
         };
 
-        user.RefreshToken = refreshToken;
-        user.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
+        user.Token ??= new Token();
 
-        await _users.UpdateAsync(user.Id, user, token);
+        user.Token.RefreshToken = refreshToken;
+        user.Token.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
+
+        await _tokens.UpdateAsync(user.TokenId, user.Token, cancellationToken);
 
         return Ok(response);
     }
 
-    [HttpPost("signup")]
-    public async Task<ActionResult> SignUp([FromBody] SignUpUser signUpUser, CancellationToken token)
+    [HttpPost("sign-up")]
+    public async Task<IActionResult> SignUp([FromBody] SignUpUser signUpUser, CancellationToken cancellationToken)
     {
-        var user = await _users.GetByEmailAsync(signUpUser.Email, token);
+        var user = await _users.GetByEmailAsync(signUpUser.Email, cancellationToken);
 
-        if (user == null)
-        {
-            PasswordHasher<User> hasher = new PasswordHasher<User>();
-            user = new User()
-            {
-                Email = signUpUser.Email,
-                Name = signUpUser.Name,
-                Password = hasher.HashPassword(user, signUpUser.Password)
-            };
-
-            await _users.CreateAsync(user, token);
-
-            return Ok();
-        }
-        else
+        if (user != null)
         {
             return Conflict();
         }
+
+        var hasher = new PasswordHasher<Chat.Domain.User>();
+        user = new Chat.Domain.User()
+        {
+            Email = signUpUser.Email,
+            Name = signUpUser.Name,
+            Hash = hasher.HashPassword(user, signUpUser.Password),
+            Token = new Token()
+        };
+
+        await _users.CreateAsync(user, cancellationToken);
+
+        return Ok();
     }
 }
 

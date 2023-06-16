@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
 
-namespace Chat.Api.Common;
+namespace Chat.Api.Services;
 
 public interface ITokenService
 {
