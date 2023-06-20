@@ -34,6 +34,7 @@ public class MessageRepository : IMessageRepository
     {
         return
             _context.Messages
+            .AsNoTracking()
             .SingleOrDefaultAsync(x => x.Id == id);
     }
 

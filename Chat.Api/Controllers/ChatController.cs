@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Claims;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -14,7 +13,7 @@ namespace Api.Controllers;
 
 [Authorize]
 [ApiController]
-[Route("api/chat")]
+[Route("api/chat/users/{userEmail}/friends")]
 public class ChatController : ControllerBase
 {
     private readonly IFriendRepository _friends;
@@ -30,15 +29,17 @@ public class ChatController : ControllerBase
         _mapper = mapper;
     }
 
-    [HttpGet("chat-history")]
+    [HttpGet("{friendEmail}/history")]
     public async Task<ActionResult<ICollection<Chat.Domain.Chat>>> GetChatHistory(
-        [FromQuery] ChatHistory chatHistory, CancellationToken token)
+        [FromRoute] string userEmail,
+        [FromRoute] string friendEmail,
+        [FromQuery] ChatPage chatHistory,
+        CancellationToken token)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email); // todo
-
         var userTask = _users.GetByEmailAsync(userEmail, token);
-        var friendTask = _users.GetByEmailAsync(chatHistory.FriendEmail, token);
+        var friendTask = _users.GetByEmailAsync(friendEmail, token);
         await Task.WhenAll(userTask, friendTask);
+        var list = new List<int>();
 
         var messageList = await
             _chats
@@ -49,11 +50,12 @@ public class ChatController : ControllerBase
         return Ok(messageListResponse);
     }
 
-    [HttpGet("find-friends")]
-    public async Task<ActionResult<ICollection<FriendResponse>>> RequiredFriends([FromQuery] string key, CancellationToken token)
+    [HttpGet]
+    public async Task<ActionResult<ICollection<FriendResponse>>> RequiredFriends(
+        [FromRoute] string userEmail,
+        [FromQuery] string key,
+        CancellationToken token)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email); // todo
-
         var user = await
             _users
             .GetByEmailAsync(userEmail, token);
@@ -70,11 +72,12 @@ public class ChatController : ControllerBase
         return Ok(friendListResponse);
     }
 
-    [HttpPost("add-friend")]
-    public async Task<ActionResult> AddToFriend([FromBody] FriendRequest friend, CancellationToken token)
+    [HttpPost]
+    public async Task<ActionResult> AddToFriend(
+        [FromRoute] string userEmail,
+        [FromBody] FriendRequest friend,
+        CancellationToken token)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email);
-
         var userTask = _users.GetByEmailAsync(userEmail, token);
         var friendTask = _users.GetByEmailAsync(friend.FriendEmail, token);
         await Task.WhenAll(userTask, friendTask);
@@ -86,6 +89,22 @@ public class ChatController : ControllerBase
                 UserFriend = friendTask.Result
             },
             token);
+
+        return Ok();
+    }
+
+    [HttpDelete("{friendEmail}")]
+    public async Task<ActionResult> RemoveFromFriends(
+        [FromRoute] string userEmail,
+        [FromRoute] string friendEmail,
+        CancellationToken token)
+    {
+        var userTask = _users.GetByEmailAsync(userEmail, token);
+        var friendTask = _users.GetByEmailAsync(friendEmail, token);
+        await Task.WhenAll(userTask, friendTask);
+
+        await _friends
+            .DeleteAsync(userTask.Result.Id, friendTask.Result.Id, token);
 
         return Ok();
     }

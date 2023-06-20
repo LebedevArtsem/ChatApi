@@ -25,6 +25,7 @@ public class UserRepository : IUserRepository
     {
         return
             _context.Users
+            .AsNoTracking()
             .ToListAsync(token);
     }
 
@@ -32,6 +33,7 @@ public class UserRepository : IUserRepository
     {
         return
             _context.Users
+            .AsNoTracking()
             .SingleOrDefaultAsync(u => u.Email == email, token);
     }
 
@@ -39,6 +41,7 @@ public class UserRepository : IUserRepository
     {
         return
             _context.Users
+            .AsNoTracking()
             .SingleOrDefaultAsync(u => u.Id == id, token);
     }
 

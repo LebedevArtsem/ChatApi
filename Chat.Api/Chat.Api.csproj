@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Chat.DataAccessLayer\Chat.DataAccessLayer.csproj" />
     <ProjectReference Include="..\Chat.Domain\Chat.Domain.csproj" />
-    <ProjectReference Include="..\Chat.Infrastructure\Chat.DataAccessLayer.csproj" />
   </ItemGroup>
 
 </Project>

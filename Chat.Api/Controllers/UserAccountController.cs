@@ -34,7 +34,7 @@ public class UserAccountController : ControllerBase
     {
         var user = await _users.GetByEmailAsync(signInUser.Email, cancellationToken);
 
-        var hasher = new PasswordHasher<Chat.Domain.User>();
+        var hasher = new PasswordHasher<User>();
 
         var passwordValid = hasher.VerifyHashedPassword(user, user.Hash, signInUser.Password);
         if (passwordValid == PasswordVerificationResult.Failed)
@@ -75,8 +75,8 @@ public class UserAccountController : ControllerBase
             return Conflict();
         }
 
-        var hasher = new PasswordHasher<Chat.Domain.User>();
-        user = new Chat.Domain.User()
+        var hasher = new PasswordHasher<User>();
+        user = new User()
         {
             Email = signUpUser.Email,
             Name = signUpUser.Name,

@@ -2,11 +2,8 @@
 
 namespace Chat.Api.Models;
 
-public class ChatHistory
+public class ChatPage
 {
-    [Required]
-    public string FriendEmail { get; set; }
-
     [Required]
     [Range(0, int.MaxValue, ErrorMessage = "Wrong value")]
     public int PageSkip { get; set; }

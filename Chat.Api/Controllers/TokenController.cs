@@ -26,25 +26,25 @@ public class TokenController : ControllerBase
     }
 
     [HttpPost("refresh")]
-    public async Task<ActionResult> Refresh([FromBody] TokenModelResponse tokenModel, CancellationToken cancellationToken)
+    public async Task<ActionResult> Refresh([FromBody] TokenModelRequest tokenModel, CancellationToken cancellationToken)
     {
         var principal = _tokenService.GetPrincipalFromExpiredToken(tokenModel.AccessToken);
         var email = principal.FindFirst(ClaimTypes.Email).Value;
 
         var user = await _users.GetByEmailAsync(email, cancellationToken);
 
-        var userToken = await _tokens.GetAsync(user.TokenId, cancellationToken);
+        var tokenToUpdate = await _tokens.GetAsync(user.TokenId, cancellationToken);
 
-        if (userToken.RefreshToken != tokenModel.RefreshToken ||
-            userToken.RefreshTokenExpiryTime <= DateTime.Now)
+        if (tokenToUpdate.RefreshToken != tokenModel.RefreshToken ||
+            tokenToUpdate.RefreshTokenExpiryTime <= DateTime.Now)
             return BadRequest("Invalid client request");
 
         var newAccessToken = _tokenService.GenerateAccessToken(principal.Claims);
         var newRefreshToken = _tokenService.GenerateRefreshToken();
 
-        userToken.RefreshToken = newRefreshToken;
-        userToken.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
-        await _tokens.UpdateAsync(userToken.Id, userToken, cancellationToken);
+        tokenToUpdate.RefreshToken = newRefreshToken;
+        tokenToUpdate.RefreshTokenExpiryTime = DateTime.UtcNow.AddDays(1);
+        await _tokens.UpdateAsync(tokenToUpdate.Id, tokenToUpdate, cancellationToken);
 
         var response = new
         {
@@ -55,14 +55,12 @@ public class TokenController : ControllerBase
         return CreatedAtAction("Refresh token", response);
     }
 
-    [HttpPost("revoke"), Authorize]
+    [HttpDelete("revoke"), Authorize]
     public async Task<ActionResult> Revoke(CancellationToken cancellationToken)
     {
         var email = ClaimsPrincipal.Current.FindFirst(ClaimTypes.Email).Value;
 
         var user = await _users.GetByEmailAsync(email, cancellationToken);
-        if (user == null)
-            return NotFound();
 
         await _tokens.DeleteAsync(user.TokenId, cancellationToken);
 

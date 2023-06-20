@@ -37,6 +37,7 @@ public class FriendRepository : IFriendRepository
     {
         return
             _context.Friends
+            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -44,13 +45,14 @@ public class FriendRepository : IFriendRepository
     {
         var friends = await
             _context.Friends
+            .AsNoTracking()
             .Include(x => x.UserId)
             .Where(x => x.UserId == user.Id && EF.Functions.Like(x.UserFriend.Name, $"{key}%"))
-            //.Select(x => new Models.User { x.User, x.UserFriend })
             .ToListAsync(token) as ICollection<Friend>;
 
         return friends;
     }
+
     public Task UpdateAsync(int userId, User friend, CancellationToken token)
     {
         return
